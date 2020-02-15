@@ -1,0 +1,9 @@
+{
+    "name": "bsv-weibouploader",
+    "version": "0.0.1",
+    "description": "BSV Weibo Uploader",
+    "devDependencies": {},
+    "dependencies": {
+        "bsv": "^1.3.0"
+    }
+}
