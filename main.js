@@ -1,3 +1,4 @@
+var fs = require('fs')
 var bsv = require('bsv')
 var BN = require('bn.js')
 var MatterCloud = require('mattercloudjs')
@@ -10,39 +11,9 @@ var matterOptions = {
 var matter = MatterCloud.instance(matterOptions)
 
 const feeRate = 0.5 // sat/byte
+const BProtocolPrefix = "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
 
-// NodeAPI.getUTXOs(secret.Address, (ch) => { console.log('WOC:', ch) })
-
-
-//NodeAPI.getTx('5e3014372338f079f005eedc85359e4d96b8440e7dbeb8c35c4182e0c19a1a12', (ch) => { console.log(ch) })
-
-// var address = bsv.Address.fromString(secret.Address)
-
-// var script = bsv.Script.fromAddress(address)
-
-// console.log(script.toASM())
-// 'OP_DUP OP_HASH160 e2a623699e81b291c0327f408fea765d534baa2a OP_EQUALVERIFY OP_CHECKSIG'
-
-var txs = {}
-
-function getPrevTxs(utxos) {
-    return new Promise(function (resolve, reject) {
-        let counter = 0
-        for (let i = 0; i < utxos.length; i++) {
-            const utxo = utxos[i];
-            if (!txs[utxo.txid]) {
-                txs[utxo.txid] = true
-                NodeAPI.getTxAsync(utxo.txid).then(function (txData) {
-                    txs[utxo.txid] = txData
-                    counter += 1
-                    if (counter >= utxos.length) {
-                        resolve(utxos)
-                    }
-                }).catch((e) => console.log('error', e))
-            }
-        }
-    })
-}
+var bufferTestpic = fs.readFileSync('./testT.png')
 
 matter.getUtxos(secret.Address).then(function (jsonUtxos) {
     var newTx = new bsv.Transaction()
@@ -55,17 +26,21 @@ matter.getUtxos(secret.Address).then(function (jsonUtxos) {
         totalInputValue += jsonUtxo.value
     });
     newTx.from(inputs)
-
-    var text = new Buffer('开心果真可爱')
-    var opreturnOutputScript = bsv.Script.fromASM('0 OP_RETURN ' + text.toString('hex'))
-
+    var len = bufferTestpic.length
+    console.log('16radix', len.toString('16'))
+    var opreturnOutputScript = bsv.Script.fromASM(`OP_FALSE OP_RETURN ${Buffer.from(BProtocolPrefix).toString('hex')}`)
+    opreturnOutputScript.add(bufferTestpic)
+    opreturnOutputScript.add(Buffer.from('image/png'))
+    opreturnOutputScript.add(Buffer.from('binary'))
+    opreturnOutputScript.add(Buffer.from('testT-by-hand.png'))
+    
     var jsonOpreturnOutput = {
         satoshis: 0,
         script: opreturnOutputScript
     }
     var opreturnOutput = new bsv.Transaction.Output(jsonOpreturnOutput)
     newTx.addOutput(opreturnOutput)
-    
+
     newTx.change(new bsv.Address(secret.Address))
 
     signedTx = newTx.sign(new bsv.PrivateKey(secret.PrivateKey))
