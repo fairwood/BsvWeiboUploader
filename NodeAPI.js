@@ -1,44 +1,19 @@
-var http = require('https');
+/*
+    A little slower than MatterCloud but supports much more APIs than MatterCloud. Using WhatsOnChain.com
+*/
+
+var https = require('https');
 
 const HOSTNAME = 'api.whatsonchain.com'
 const API_PREFIX = "https://api.whatsonchain.com/v1/bsv/main"
 
-// var txhash = "2ae08e256155d1ecc99bfcfeb9a1cb06f3fa2577ed8499b6cb3a1eba7dcae05d"
-
-// const options = {
-//     hostname: 'api.whatsonchain.com',
-//     port: 80,
-//     path: '/v1/bsv/main/tx/hash/2ae08e256155d1ecc99bfcfeb9a1cb06f3fa2577ed8499b6cb3a1eba7dcae05d',
-//     method: 'GET',
-//     headers: {
-//         'Content-Type': 'application/x-www-form-urlencoded',
-//         'Content-Length': 0
-//     }
-// }
-
-// const req = http.get(api + '/' + txhash, (res) => {
-//     console.log(`状态码: ${res.statusCode}`);
-//     console.log(`响应头: ${JSON.stringify(res.headers)}`);
-//     res.setEncoding('utf8');
-//     res.on('data', (chunk) => {
-//         console.log(`响应主体: ${chunk}`);
-//     });
-//     res.on('end', () => {
-//         console.log('响应中已无数据');
-//     });
-// });
-
-// req.on('error', (e) => {
-//     console.error(`请求遇到问题: ${e.message}`);
-// });
-
 exports.getTx = function (txhash, callback, errorCallback) {
     let path = `${API_PREFIX}/tx/hash/${txhash}`
-    let data
-    const req = http.get(path, (res) => {
+    let data = ''
+    const req = https.get(path, (res) => {
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
-            data = chunk
+            data += chunk
         });
         res.on('end', () => {
             callback(data)
@@ -51,10 +26,28 @@ exports.getTx = function (txhash, callback, errorCallback) {
     });
 }
 
+exports.getTxAsync = function (txhash) {
+    return new Promise(function (resolve, reject) {
+        let path = `${API_PREFIX}/tx/hash/${txhash}`
+        let data = ''
+        const req = https.get(path, (res) => {
+            res.setEncoding('utf8');
+            res.on('data', (chunk) => {
+                data += chunk
+            });
+            res.on('end', () => {
+                resolve(data)
+            });
+        });
+
+        req.on('error', (e) => reject(e));
+    })
+}
+
 exports.getUTXOs = function (address, callback, errorCallback) {
     let path = `${API_PREFIX}/address/${address}/unspent`
     let data
-    const req = http.get(path, (res) => {
+    const req = https.get(path, (res) => {
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
             data = chunk
@@ -72,6 +65,11 @@ exports.getUTXOs = function (address, callback, errorCallback) {
 
 
 exports.broadcastTx = function (rawTxInHex, callback, errorCallback) {
+    
+    var postData = JSON.stringify({
+        "txhex": rawTxInHex
+    });
+
     const options = {
         hostname: HOSTNAME,
         port: 443,
@@ -101,9 +99,7 @@ exports.broadcastTx = function (rawTxInHex, callback, errorCallback) {
     });
 
     // 将数据写入请求主体。
-    var postData = JSON.stringify({
-        "txhex": rawTxInHex
-    });
+    
     req.write(postData);
     req.end();
 }
