@@ -9,7 +9,7 @@ var matterOptions = {
 }
 var matter = MatterCloud.instance(matterOptions)
 
-const feeRate = 0.25 // sat/byte
+const feeRate = 0.5 // sat/byte
 
 // NodeAPI.getUTXOs(secret.Address, (ch) => { console.log('WOC:', ch) })
 
@@ -56,11 +56,21 @@ matter.getUtxos(secret.Address).then(function (jsonUtxos) {
     });
     newTx.from(inputs)
 
+    var text = new Buffer('开心果真可爱')
+    var opreturnOutputScript = bsv.Script.fromASM('0 OP_RETURN ' + text.toString('hex'))
+
+    var jsonOpreturnOutput = {
+        satoshis: 0,
+        script: opreturnOutputScript
+    }
+    var opreturnOutput = new bsv.Transaction.Output(jsonOpreturnOutput)
+    newTx.addOutput(opreturnOutput)
+    
     newTx.change(new bsv.Address(secret.Address))
 
     signedTx = newTx.sign(new bsv.PrivateKey(secret.PrivateKey))
 
-    console.log(signedTx.toBuffer().toString('hex'), signedTx.toBuffer().length)
+    console.log(signedTx.toBuffer().toString('hex'))
 
     NodeAPI.broadcastTx(signedTx.toBuffer().toString('hex'), (res) => { console.log(res) })
 }).catch(console.log)
