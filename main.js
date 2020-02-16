@@ -2,7 +2,6 @@ var fs = require('fs')
 var bsv = require('bsv')
 var BN = require('bn.js')
 var MatterCloud = require('mattercloudjs')
-var NodeAPI = require('./NodeAPI')
 var secret = require('./secret')
 
 var matterOptions = {
@@ -12,21 +11,23 @@ var matter = MatterCloud.instance(matterOptions)
 
 const feeRate = 0.5 // sat/byte
 const BProtocolPrefix = "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
+const MyPrivateKey = bsv.PrivateKey.fromString(secret.PrivateKey)
+const MyAddress = MyPrivateKey.toAddress()
 
 var bufferTestpic = fs.readFileSync('./testT.png')
 
-matter.getUtxos(secret.Address).then(function (jsonUtxos) {
+matter.getUtxos(MyAddress.toString()).then(function (jsonUtxos) {
     var newTx = new bsv.Transaction()
     newTx.feePerKb(feeRate * 1000)
     inputs = []
-    totalInputValue = 0
+    let totalInputValue = 0
     jsonUtxos.forEach(jsonUtxo => {
         let utxo = new bsv.Transaction.UnspentOutput(jsonUtxo)
         inputs.push(utxo)
         totalInputValue += jsonUtxo.value
     });
+    console.log(`地址${MyAddress}  余额${totalInputValue}sat`)
     newTx.from(inputs)
-    var len = bufferTestpic.length
     var opreturnOutputScript = bsv.Script.fromASM(`OP_FALSE OP_RETURN ${Buffer.from(BProtocolPrefix).toString('hex')}`)
     opreturnOutputScript.add(bufferTestpic)
     opreturnOutputScript.add(Buffer.from('image/png'))
@@ -40,13 +41,13 @@ matter.getUtxos(secret.Address).then(function (jsonUtxos) {
     var opreturnOutput = new bsv.Transaction.Output(jsonOpreturnOutput)
     newTx.addOutput(opreturnOutput)
 
-    newTx.change(new bsv.Address(secret.Address))
+    newTx.change(MyAddress)
 
-    signedTx = newTx.sign(new bsv.PrivateKey(secret.PrivateKey))
+    signedTx = newTx.sign(MyPrivateKey)
 
     console.log('已签名事务', signedTx.toBuffer().toString('hex'))
 
     return signedTx
 }).then(function (signedTx) {
-    matter.sendRawTx(signedTx.toBuffer().toString('hex'), (res) => { console.log('发送事务成功 ', res) })
+    //matter.sendRawTx(signedTx.toBuffer().toString('hex'), (res) => { console.log('发送事务成功 ', res) })
 }).catch(console.log)
