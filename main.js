@@ -1,6 +1,6 @@
 var fs = require('fs')
+var WeiboAPI = require('./WeiboAPI')
 var bsv = require('bsv')
-var BN = require('bn.js')
 var MatterCloud = require('mattercloudjs')
 var secret = require('./secret')
 
@@ -14,9 +14,24 @@ const BProtocolPrefix = "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
 const MyPrivateKey = bsv.PrivateKey.fromString(secret.PrivateKey)
 const MyAddress = MyPrivateKey.toAddress()
 
-var bufferTestpic = fs.readFileSync('./testT.png')
+const URL = "https://weibo.com/7188541529/IutGtquHb?from=page_1006067188541529_profile&wvr=6&mod=weibotime"
 
-matter.getUtxos(MyAddress.toString()).then(function (jsonUtxos) {
+let bufferMd
+
+WeiboAPI.statuses.showAsync(URL).then(function (res) {
+
+    let json = JSON.parse(res)
+    console.log(json);
+    
+    let md = WeiboAPI.BuildMarkdownFromWeiboData(json.data)
+    bufferMd = new Buffer(md)
+
+}).then(function () {
+
+    return matter.getUtxos(MyAddress.toString())
+
+}).then(function (jsonUtxos) {
+
     var newTx = new bsv.Transaction()
     newTx.feePerKb(feeRate * 1000)
     inputs = []
@@ -29,10 +44,10 @@ matter.getUtxos(MyAddress.toString()).then(function (jsonUtxos) {
     console.log(`地址${MyAddress}  余额${totalInputValue}sat`)
     newTx.from(inputs)
     var opreturnOutputScript = bsv.Script.fromASM(`OP_FALSE OP_RETURN ${Buffer.from(BProtocolPrefix).toString('hex')}`)
-    opreturnOutputScript.add(bufferTestpic)
-    opreturnOutputScript.add(Buffer.from('image/png'))
-    opreturnOutputScript.add(Buffer.from('binary'))
-    opreturnOutputScript.add(Buffer.from('testT-by-hand2.png'))
+    opreturnOutputScript.add(bufferMd)
+    opreturnOutputScript.add(Buffer.from('text/markdown')) //image/png'))
+    opreturnOutputScript.add(Buffer.from('UTF-8'))
+    opreturnOutputScript.add(Buffer.from('测试微博上链by脚本.md'))
 
     var jsonOpreturnOutput = {
         satoshis: 0,
@@ -45,9 +60,10 @@ matter.getUtxos(MyAddress.toString()).then(function (jsonUtxos) {
 
     signedTx = newTx.sign(MyPrivateKey)
 
-    console.log('已签名事务', signedTx.toBuffer().toString('hex'))
+    console.log('已签名事务\n')
+    console.log(signedTx.toBuffer().toString('hex'))
 
     return signedTx
 }).then(function (signedTx) {
-    //matter.sendRawTx(signedTx.toBuffer().toString('hex'), (res) => { console.log('发送事务成功 ', res) })
+    matter.sendRawTx(signedTx.toBuffer().toString('hex'), (res) => { console.log('发送事务成功 ', res) })
 }).catch(console.log)
