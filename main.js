@@ -27,13 +27,12 @@ matter.getUtxos(secret.Address).then(function (jsonUtxos) {
     });
     newTx.from(inputs)
     var len = bufferTestpic.length
-    console.log('16radix', len.toString('16'))
     var opreturnOutputScript = bsv.Script.fromASM(`OP_FALSE OP_RETURN ${Buffer.from(BProtocolPrefix).toString('hex')}`)
     opreturnOutputScript.add(bufferTestpic)
     opreturnOutputScript.add(Buffer.from('image/png'))
     opreturnOutputScript.add(Buffer.from('binary'))
-    opreturnOutputScript.add(Buffer.from('testT-by-hand.png'))
-    
+    opreturnOutputScript.add(Buffer.from('testT-by-hand2.png'))
+
     var jsonOpreturnOutput = {
         satoshis: 0,
         script: opreturnOutputScript
@@ -45,7 +44,9 @@ matter.getUtxos(secret.Address).then(function (jsonUtxos) {
 
     signedTx = newTx.sign(new bsv.PrivateKey(secret.PrivateKey))
 
-    console.log(signedTx.toBuffer().toString('hex'))
+    console.log('已签名事务', signedTx.toBuffer().toString('hex'))
 
-    NodeAPI.broadcastTx(signedTx.toBuffer().toString('hex'), (res) => { console.log(res) })
+    return signedTx
+}).then(function (signedTx) {
+    matter.sendRawTx(signedTx.toBuffer().toString('hex'), (res) => { console.log('发送事务成功 ', res) })
 }).catch(console.log)
