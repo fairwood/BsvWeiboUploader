@@ -12,7 +12,8 @@
 ```
 
 确保该地址有几千sat以上的余额。
-也可以填入新私钥，然后运行一次main.js会输出对应的地址，再向地址转一些钱即可。
+
+（这里也可以填入新私钥，然后运行一次main.js会输出对应的地址，再向该地址转一些钱即可。）
 
 # 每次存证的流程
 
@@ -33,3 +34,14 @@ const URL = "https://weibo.com/2803301701/Iuw1wpJWh..."
 ```
 
 3. 几秒钟之内会上链成功，并输出txid
+
+
+# 相关协议和库
+
+[B Protocol](https://github.com/unwriter/B) unwriter的B协议
+
+[MoneyButton的bsv底层库](https://docs.moneybutton.com) 用于进行密钥、签名等事务相关的操作
+
+[MatterCloud](https://www.mattercloud.net) BSV节点API，用于获取UTXO，广播事务
+
+[Bico.Media](https://bico.media) unwriter的B协议浏览器
