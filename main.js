@@ -1,4 +1,3 @@
-var fs = require('fs')
 var WeiboAPI = require('./WeiboAPI')
 var bsv = require('bsv')
 var MatterCloud = require('mattercloudjs')
@@ -14,16 +13,15 @@ const BProtocolPrefix = "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
 const MyPrivateKey = bsv.PrivateKey.fromString(secret.PrivateKey)
 const MyAddress = MyPrivateKey.toAddress()
 
-const URL = "https://weibo.com/7188541529/IutGtquHb?from=page_1006067188541529_profile&wvr=6&mod=weibotime"
+const URL = "https://weibo.com/1658988854/Iur4rilwI"
 
 let bufferMd
 
 WeiboAPI.statuses.showAsync(URL).then(function (res) {
 
     let json = JSON.parse(res)
-    console.log(json);
-    
     let md = WeiboAPI.BuildMarkdownFromWeiboData(json.data)
+
     bufferMd = new Buffer(md)
 
 }).then(function () {
@@ -60,10 +58,19 @@ WeiboAPI.statuses.showAsync(URL).then(function (res) {
 
     signedTx = newTx.sign(MyPrivateKey)
 
-    console.log('已签名事务\n')
+    console.log('已签名事务:')
     console.log(signedTx.toBuffer().toString('hex'))
+    console.log()
 
     return signedTx
+
 }).then(function (signedTx) {
-    matter.sendRawTx(signedTx.toBuffer().toString('hex'), (res) => { console.log('发送事务成功 ', res) })
+
+    matter.sendRawTx(signedTx.toBuffer().toString('hex'), (res) => {
+        let txid = res.txid
+        console.log('发送成功 txid:', txid)
+        console.log(`事务信息 https://whatsonchain.com/tx/${txid}`)
+        console.log(`在Bico查看 https://bico.media/${txid}`)
+    })
+    
 }).catch(console.log)
