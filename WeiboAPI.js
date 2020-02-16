@@ -86,7 +86,7 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status) {
 
         status.pics.forEach(picData => {
             
-            if (picData.large) {
+            if (picData.large && false) {
                 md += `<img src="${picData.large.url}">`
             } else {
                 md += `<img src="${picData.url}">`

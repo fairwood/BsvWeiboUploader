@@ -13,7 +13,7 @@ const BProtocolPrefix = "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
 const MyPrivateKey = bsv.PrivateKey.fromString(secret.PrivateKey)
 const MyAddress = MyPrivateKey.toAddress()
 
-const URL = "https://weibo.com/1658988854/Iur4rilwI"
+const URL = "https://weibo.com/1644730235/IuvpHEP83"
 
 let bufferMd
 
