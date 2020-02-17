@@ -1,4 +1,4 @@
-# BsvWeiboUploader (暂且可用)
+# BsvWeiboUploader 0.1 (可用)
  Fast upload a weibo to BSV chain, using B protocol.
 
 目前只能自己运行main.js脚本来上链
