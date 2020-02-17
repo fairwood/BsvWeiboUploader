@@ -3,6 +3,12 @@
 
 目前只能自己运行main.js脚本来上链
 
+**示例**
+
+[1BSVyHMSR...地址上有大量已存档微博](https://whatsonchain.com/address/1BSVyHMSRomQBTQYY5ugcioakawcSKM43F?sort=desc&limit=5&offset=5) 点击每笔交易的`Decode`按钮即可看到
+
+[单条微博示例](https://bico.media/d9a5be58be40bfd83d0ce2bab4b2eec8d2f9619f148f1fa8c97f24a44ddf4c59)
+
 # 添加私钥文件
 在./位置添加一个名为secret.json的文件，格式为
 ```
