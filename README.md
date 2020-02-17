@@ -39,7 +39,9 @@ const URL = "https://weibo.com/2803301701/Iuw1wpJWh..."
 > node "./main.js"
 ```
 
-3. 几秒钟之内会上链成功，并输出txid
+3. 几秒钟之内会上链成功，并输出txid。
+
+./位置会生成1个微博数据json文件和1个上链内容md文件，都是temp...开头，可以删除。
 
 
 # 相关协议和库

@@ -1,3 +1,4 @@
+var fs = require('fs')
 var WeiboAPI = require('./WeiboAPI')
 var bsv = require('bsv')
 var MatterCloud = require('mattercloudjs')
@@ -13,16 +14,26 @@ const BProtocolPrefix = "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
 const MyPrivateKey = bsv.PrivateKey.fromString(secret.PrivateKey)
 const MyAddress = MyPrivateKey.toAddress()
 
-const URL = "https://weibo.com/1644730235/IuvpHEP83"
+const URL = "https://weibo.com/7084289549/IuBEGs9sm?ref=home&rid=6_0_8_3376438924318933520_0_0_0"
 
-let bufferMd
+let uploadMdBodyBuffer
+let uploadMdFilename //without extension
 
 WeiboAPI.statuses.showAsync(URL).then(function (res) {
 
     let json = JSON.parse(res)
-    let md = WeiboAPI.BuildMarkdownFromWeiboData(json.data)
+    let jsonStatus = json.data
 
-    bufferMd = new Buffer(md)
+    fs.writeFile('./temp_weibo.json', JSON.stringify(json), () => { })
+
+    let mdData = WeiboAPI.BuildMarkdownFromWeiboData(jsonStatus)
+
+    fs.writeFile('./temp_markdown.md', mdData.filename + '.md\n---\n\n' + mdData.body, () => { })
+
+    uploadMdFilename = mdData.filename
+
+    uploadMdBodyBuffer = new Buffer(mdData.body)
+
 
 }).then(function () {
 
@@ -42,10 +53,11 @@ WeiboAPI.statuses.showAsync(URL).then(function (res) {
     console.log(`地址${MyAddress}  余额${totalInputValue}sat`)
     newTx.from(inputs)
     var opreturnOutputScript = bsv.Script.fromASM(`OP_FALSE OP_RETURN ${Buffer.from(BProtocolPrefix).toString('hex')}`)
-    opreturnOutputScript.add(bufferMd)
+    opreturnOutputScript.add(uploadMdBodyBuffer)
     opreturnOutputScript.add(Buffer.from('text/markdown')) //image/png'))
     opreturnOutputScript.add(Buffer.from('UTF-8'))
-    opreturnOutputScript.add(Buffer.from('测试微博上链by脚本.md'))
+    console.log(uploadMdFilename)
+    opreturnOutputScript.add(Buffer.from(`${uploadMdFilename}.md`))
 
     var jsonOpreturnOutput = {
         satoshis: 0,
@@ -72,5 +84,5 @@ WeiboAPI.statuses.showAsync(URL).then(function (res) {
         console.log(`事务信息 https://whatsonchain.com/tx/${txid}`)
         console.log(`在Bico查看 https://bico.media/${txid}`)
     })
-    
+
 }).catch(console.log)

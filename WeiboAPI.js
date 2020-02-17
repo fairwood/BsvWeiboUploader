@@ -67,14 +67,20 @@ exports.statuses.showAsync = function (rawUrl) {
 let _buildMarkdownFromStatusWithoutRetweet = function (status) {
     let user = status.user
 
-    let profileImageUrl = function (url) {
-        let indexQ = url.indexOf('?')
-        return url.substring(0, indexQ)
-    }(user.profile_image_url)
+    let md = ''
 
-    let md = `<a href="${user.profile_url}"><img src="${profileImageUrl}" width=50 > <b>${user.screen_name}</b></a>\n\n`
+    if (user) {
+        let profileImageUrl = function (url) {
+            let indexQ = url.indexOf('?')
+            return url.substring(0, indexQ)
+        }(user.profile_image_url)
 
-        + `<sub>[${status.created_at}](https://weibo.com/${user.id}/${status.bid}) 来自 ${status.source}</sub>\n\n`
+        md = `<a href="${user.profile_url}"><img src="${profileImageUrl}" width=50 > <b>${user.screen_name}</b></a>\n\n`
+    }
+
+    let userid = user ? user.id : null
+
+    md += `<sub>[${status.created_at}](https://weibo.com/${userid}/${status.bid}) 来自 ${status.source}</sub>\n\n`
 
         + '***\n\n'
 
@@ -85,7 +91,7 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status) {
         md += '\n\n'
 
         status.pics.forEach(picData => {
-            
+
             if (picData.large && false) {
                 md += `<img src="${picData.large.url}">`
             } else {
@@ -100,21 +106,27 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status) {
 //组装md
 exports.BuildMarkdownFromWeiboData = function (status) {
 
-    let md = _buildMarkdownFromStatusWithoutRetweet(status)
+    let mdData = {}
+
+    mdData.filename = `微博存档|@${status.user.screen_name}|${status.status_title}`
+
+    let body = _buildMarkdownFromStatusWithoutRetweet(status)
 
     if (status.retweeted_status) {
 
-        md += '\n\n'
+        body += '\n\n'
 
         //包含转发的微博
         let retweetMd = '><br>' + _buildMarkdownFromStatusWithoutRetweet(status.retweeted_status) + '<br><br>'
         retweetMd = retweetMd.replace(/\n/g, '\n>')
-        md += retweetMd
+        body += retweetMd
     }
 
-    md += '\n\n'
+    body += '\n\n'
 
-    md += `<sub><sub>使用 [微博存证助手](https://github.com/fairwood/BsvWeiboUploader) 一键上链</sub></sub>`
+    body += `<sub><sub>使用 [微博存证助手](https://github.com/fairwood/BsvWeiboUploader) 一键上链</sub></sub>`
 
-    return md
+    mdData.body = body
+
+    return mdData
 }
