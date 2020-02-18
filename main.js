@@ -1,29 +1,24 @@
 var fs = require('fs')
 var WeiboAPI = require('./WeiboAPI')
 var bsv = require('bsv')
-var MatterCloud = require('mattercloudjs')
 var secret = require('./secret')
-var ArchiveBProtocol = require('./ArchiveBProtocol')
+var SimpleWallet = require('./SimpleWallet')
 var DownloadImage = require('./DownloadImage')
 
-var matterOptions = {
-    api_key: "2aLxRDjQFELKEu23ExkGTkzra4E2R4p6p4AAb8EMgA4WY1kQjTWbwmAqE1jdwpJ8GX",
-}
-var matter = MatterCloud.instance(matterOptions)
-
 const feeRate = 0.5 // sat/byte
-const BProtocolPrefix = "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
-const MyPrivateKey = bsv.PrivateKey.fromString(secret.PrivateKey)
-const MyAddress = MyPrivateKey.toAddress()
 
-const URL = "https://weibo.com/2279895404/IuOAhxKzU?ref=home" //我的测试微博
-//const URL = "https://weibo.com/1639483893/IuOFeBSaG?ref=home&rid=8_0_8_4727976166387420264_0_0_0"
-const PIC_MODE = 1 //0-reference only  1-small image  2-large image
+//const URL = "https://weibo.com/2279895404/IuOAhxKzU?ref=home" //我的测试微博
+const URL = "https://weibo.com/7188541529/IuJrLhrKo?from=page_1006067188541529_profile&wvr=6&mod=weibotime"
+const PIC_MODE = 0 //0-reference only  1-small image  2-large image
 
 let uploadMdBodyBuffer
 let uploadMdFilename //without extension
 
-WeiboAPI.statuses.showAsync(URL).then(async function (res) {
+let simpleWallet = new SimpleWallet()
+simpleWallet.init(secret.PrivateKey, feeRate).then(async function () {
+    console.log(`钱包初始化成功，地址 ${simpleWallet.address.toString()} 余额${simpleWallet.getBalance()}`)
+    return await WeiboAPI.statuses.showAsync(URL)
+}).then(async function (res) {
 
     let json = JSON.parse(res)
     let jsonStatus = json.data
@@ -42,15 +37,11 @@ WeiboAPI.statuses.showAsync(URL).then(async function (res) {
             } else {
                 picUrl = picData.url
             }
-            console.log('==41', picUrl);
             let buffer = await DownloadImage.downloadImageToBuffer(picUrl)
             let mediaType = DownloadImage.getImageMediaType(buffer)
             let fileHashInHex = bsv.crypto.Hash.sha256(buffer).toString('hex')
-            console.log('==52 buffer len', buffer.length, mediaType, fileHashInHex)
-            let picTxid = await ArchiveBProtocol.archiveBProtocol(buffer, mediaType, 'binary', fileHashInHex, feeRate, MyPrivateKey)
+            let picTxid = await simpleWallet.archiveBProtocol(buffer, mediaType, 'binary', fileHashInHex)
             dictPicUrlToTxid[picUrl] = picTxid
-
-            console.log('--56', picTxid);
         }
     }
 
@@ -62,9 +53,10 @@ WeiboAPI.statuses.showAsync(URL).then(async function (res) {
 
     uploadMdBodyBuffer = new Buffer(mdData.body)
 
-}).then(function () {
+}).then(async function () {
 
-    console.log('$$67');
-    ArchiveBProtocol.archiveBProtocol(uploadMdBodyBuffer, 'text/markdown', 'UTF-8', uploadMdFilename, feeRate, MyPrivateKey)
+    await simpleWallet.archiveBProtocol(uploadMdBodyBuffer, 'text/markdown', 'UTF-8', uploadMdFilename)
+
+    console.log(`完成，地址 ${simpleWallet.address.toString()} 余额${simpleWallet.getBalance()}`)
 
 }).catch(console.log)

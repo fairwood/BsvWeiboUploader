@@ -94,9 +94,9 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status, PIC_MODE, dictPic
 
             if (PIC_MODE == 0) {
                 if (picData.large) {
-                    md += `<img src="${picData.large.url}">`
+                    md += `<img src="${picData.large.url}"> `
                 } else {
-                    md += `<img src="${picData.url}">`
+                    md += `<img src="${picData.url}"> `
                 }
             } else {
                 let picTxid
@@ -105,7 +105,7 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status, PIC_MODE, dictPic
                 } else {
                     picTxid = dictPicUrlToTxid[picData.url]
                 }
-                md += `![](b://${picTxid})`
+                md += `![](b://${picTxid}) `
             }
         });
     }
