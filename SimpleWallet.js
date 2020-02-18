@@ -47,10 +47,8 @@ function SimpleWallet() { // 极简钱包
         let newTx = new bsv.Transaction()
         newTx.feePerKb(this.feeRate * 1000)
         let inputs = []
-        let totalInputValue = 0
         this.utxos.forEach(utxo => {
             inputs.push(utxo)
-            totalInputValue += utxo.satoshis
         });
         newTx.from(inputs)
         let opreturnOutputScript = bsv.Script.fromASM(`OP_FALSE OP_RETURN ${Buffer.from(BProtocolPrefix).toString('hex')}`)
