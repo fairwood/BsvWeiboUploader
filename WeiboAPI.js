@@ -64,7 +64,7 @@ exports.statuses.showAsync = function (rawUrl) {
     })
 }
 
-let _buildMarkdownFromStatusWithoutRetweet = function (status) {
+let _buildMarkdownFromStatusWithoutRetweet = function (status, PIC_MODE, dictPicUrlToTxid) {
     let user = status.user
 
     let md = ''
@@ -92,10 +92,20 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status) {
 
         status.pics.forEach(picData => {
 
-            if (picData.large && false) {
-                md += `<img src="${picData.large.url}">`
+            if (PIC_MODE == 0) {
+                if (picData.large) {
+                    md += `<img src="${picData.large.url}">`
+                } else {
+                    md += `<img src="${picData.url}">`
+                }
             } else {
-                md += `<img src="${picData.url}">`
+                let picTxid
+                if (picData.large && PIC_MODE == 2) {
+                    picTxid = dictPicUrlToTxid[picData.large.url]
+                } else {
+                    picTxid = dictPicUrlToTxid[picData.url]
+                }
+                md += `![](b://${picTxid})`
             }
         });
     }
@@ -104,13 +114,13 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status) {
 }
 
 //组装md
-exports.BuildMarkdownFromWeiboData = function (status) {
+exports.BuildMarkdownFromWeiboData = function (status, PIC_MODE, dictPicUrlToTxid) {
 
     let mdData = {}
 
     mdData.filename = `微博存档|@${status.user.screen_name}|${status.status_title}`
 
-    let body = _buildMarkdownFromStatusWithoutRetweet(status)
+    let body = _buildMarkdownFromStatusWithoutRetweet(status, PIC_MODE, dictPicUrlToTxid)
 
     if (status.retweeted_status) {
 
