@@ -10,9 +10,9 @@ var DownloadImage = require('./DownloadImage')
 
 const FEE_RATE = 0.5 // sat/byte
 
-const PIC_MODE = 1 //0-reference only  1-small image  2-large image
+const PIC_MODE = 1 // 0-reference only  1-small image  2-large image
 
-const URL = "https://weibo.com/1760805580/IuPEsdlN4?ref=home&rid=3_0_8_3382918612649464343_6_0_0" //修改这个URL为你要存档的微博URL
+const URL = "https://weibo.com/2882661031/IuTSpz5N2?ref=home&rid=1_0_8_3383036904590906956_0_0_0" //修改这个URL为你要存档的微博URL
 
 let uploadMdBodyBuffer
 let uploadMdFilename //without extension
@@ -54,7 +54,7 @@ simpleWallet.init(secret.PrivateKey, FEE_RATE).then(async function () {
 
     uploadMdFilename = mdData.filename
 
-    uploadMdBodyBuffer = new Buffer(mdData.body)
+    uploadMdBodyBuffer = Buffer.from(mdData.body)
 
 }).then(async function () {
 
