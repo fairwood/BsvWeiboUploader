@@ -80,7 +80,10 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status, PIC_MODE, dictPic
 
     let userid = user ? user.id : null
 
-    md += `<sub>[${status.created_at}](https://weibo.com/${userid}/${status.bid}) 来自 ${status.source}</sub>\n\n`
+    let date = new Date(status.created_at)
+    let timestr = date.toLocaleString('ch-CN', { hour12: false, timeZoneName: 'short' })
+
+    md += `<sub>[${timestr}](https://weibo.com/${userid}/${status.bid}) 来自 ${status.source}</sub>\n\n`
 
         + '***\n\n'
 

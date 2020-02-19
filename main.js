@@ -6,20 +6,23 @@ var SimpleWallet = require('./SimpleWallet')
 var DownloadImage = require('./DownloadImage')
 
 
-//const URL = "https://weibo.com/2279895404/IuOAhxKzU?ref=home" //我的测试微博
-
 const FEE_RATE = 0.5 // sat/byte
 
 const PIC_MODE = 1 // 0-reference only  1-small image  2-large image
 
-const URL = "https://weibo.com/2882661031/IuTSpz5N2?ref=home&rid=1_0_8_3383036904590906956_0_0_0" //修改这个URL为你要存档的微博URL
+//↓↓↓↓↓↓↓↓↓↓↓
+const URL = "https://weibo.com/2279895404/IuOAhxKzU" //修改这个URL为你要存档的微博URL
+//↑↑↑↑↑↑↑↑↑↑↑
 
 let uploadMdBodyBuffer
 let uploadMdFilename //without extension
 
-let simpleWallet = new SimpleWallet()
-simpleWallet.init(secret.PrivateKey, FEE_RATE).then(async function () {
-    console.log(`钱包初始化成功，地址 ${simpleWallet.address.toString()} 余额${simpleWallet.getBalance()}`)
+let simpleWallet = new SimpleWallet(secret.PrivateKey, FEE_RATE)
+let balanceBefore
+
+simpleWallet.fetchUTXOs().then(async function () {
+    balanceBefore = simpleWallet.getBalance()
+    console.log(`钱包初始化成功，地址 ${simpleWallet.address.toString()}   余额 ${balanceBefore} sat`)
     return await WeiboAPI.statuses.showAsync(URL)
 }).then(async function (res) {
 
@@ -60,6 +63,7 @@ simpleWallet.init(secret.PrivateKey, FEE_RATE).then(async function () {
 
     await simpleWallet.archiveBProtocol(uploadMdBodyBuffer, 'text/markdown', 'UTF-8', uploadMdFilename)
 
-    console.log(`完成，地址 ${simpleWallet.address.toString()} 余额${simpleWallet.getBalance()}`)
+    let balanceNow = simpleWallet.getBalance()
+    console.log(`完成，地址${simpleWallet.address.toString()}   花费 ${balanceNow-balanceBefore} sat   余额 ${balanceNow} sat`)
 
 }).catch(console.log)

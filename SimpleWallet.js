@@ -6,20 +6,18 @@ var matterOptions = {
 var matter = MatterCloud.instance(matterOptions)
 const BProtocolPrefix = "19HxigV4QyBv3tHpQVcUEQyq1pzZVdoAut"
 
-function SimpleWallet() { // 极简钱包
+function SimpleWallet(privateKeyString, feePerByte = 0.5) { // 极简钱包
 
-    this.privateKey = null
-    this.address = null
+    this.privateKey = bsv.PrivateKey.fromString(privateKeyString)
+    this.address = this.privateKey.toAddress()
+    if (feePerByte) this.feeRate = feePerByte
+
     this.utxos = null
-    this.feeRate = null
-
+    
     /**
      * Must call at running. Can call anytime to refresh UTXOs.
      */
-    this.init = async function (privateKeyString, feePerByte) {
-        this.privateKey = bsv.PrivateKey.fromString(privateKeyString)
-        this.address = this.privateKey.toAddress()
-        this.feeRate = feePerByte
+    this.fetchUTXOs = async function () {
         let jsonUtxos = await matter.getUtxos(this.address.toString())
         this.utxos = []
         jsonUtxos.forEach(jsonUtxo => {
@@ -28,13 +26,44 @@ function SimpleWallet() { // 极简钱包
         });
     }
 
-
     this.getBalance = function () {
         let balance = 0
         this.utxos.forEach(utxo => {
             balance += utxo.satoshis
         });
         return balance
+    }
+
+    this.withdrawAll = async function (receiverAddresss) {
+
+        let newTx = new bsv.Transaction()
+        newTx.feePerKb(this.feeRate * 1000)
+        let inputs = []
+        this.utxos.forEach(utxo => {
+            inputs.push(utxo)
+        });
+        newTx.from(inputs)
+        newTx.change(receiverAddresss)
+
+        let signedTx = newTx.sign(this.privateKey)
+
+        let txid = null
+
+        try {
+
+            res = await matter.sendRawTx(signedTx.toBuffer().toString('hex'))
+            txid = res.txid
+            console.log(`Withdraw successful. Total: ${signedTx.getChangeOutput().satoshis}sat. txid:`, txid)
+            console.log(`Check tx https://whatsonchain.com/tx/${txid}`)
+
+            //Clear UTXOs
+            this.utxos = []
+
+        } catch (error) {
+            console.log('ERROR:', error);
+        }
+
+        return txid
     }
 
     /**
@@ -74,8 +103,8 @@ function SimpleWallet() { // 极简钱包
             res = await matter.sendRawTx(signedTx.toBuffer().toString('hex'))
             txid = res.txid
             console.log('Archive successful. txid:', txid)
-            console.log(`Check tx https://whatsonchain.com/tx/${txid}`)
             console.log(`Check file on Bico https://bico.media/${txid}`)
+            console.log(`Check tx https://whatsonchain.com/tx/${txid}`)
 
             //Substitute UTXOs
             this.utxos = []
