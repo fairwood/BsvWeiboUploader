@@ -38,8 +38,7 @@ exports.statuses.showAsync = function (rawUrl) {
     return new Promise(function (resolve, reject) {
         let index_w = rawUrl.search('weibo')
         if (index_w < 0) {
-            console.log('ERROR: Not a weibo URL.', rawUrl)
-            return null
+            reject('ERROR: Not a weibo URL. ' + rawUrl)
         } else {
             let indexOfWbid = rawUrl.lastIndexOf('/') + 1
             let indexOfQuestionMark = rawUrl.indexOf('?', indexOfWbid)
@@ -64,7 +63,7 @@ exports.statuses.showAsync = function (rawUrl) {
     })
 }
 
-let _buildMarkdownFromStatusWithoutRetweet = function (status, PIC_MODE, dictPicUrlToTxid) {
+let _buildMarkdownFromStatusWithoutRetweet = function (status, picMode, dictPicUrlToTxid) {
     let user = status.user
 
     let md = ''
@@ -94,8 +93,7 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status, PIC_MODE, dictPic
         md += '\n\n'
 
         status.pics.forEach(picData => {
-
-            if (PIC_MODE == 0) {
+            if (picMode == 0) {
                 if (picData.large) {
                     md += `<img src="${picData.large.url}"> `
                 } else {
@@ -103,7 +101,7 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status, PIC_MODE, dictPic
                 }
             } else {
                 let picTxid
-                if (picData.large && PIC_MODE == 2) {
+                if (picData.large && picMode == 2) {
                     picTxid = dictPicUrlToTxid[picData.large.url]
                 } else {
                     picTxid = dictPicUrlToTxid[picData.url]
@@ -117,27 +115,27 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status, PIC_MODE, dictPic
 }
 
 //组装md
-exports.BuildMarkdownFromWeiboData = function (status, PIC_MODE, dictPicUrlToTxid) {
+exports.BuildMarkdownFromWeiboData = function (status, picMode, dictPicUrlToTxid) {
 
     let mdData = {}
 
     mdData.filename = `微博存档|@${status.user.screen_name}|${status.status_title}`
 
-    let body = _buildMarkdownFromStatusWithoutRetweet(status, PIC_MODE, dictPicUrlToTxid)
+    let body = _buildMarkdownFromStatusWithoutRetweet(status, picMode, dictPicUrlToTxid)
 
     if (status.retweeted_status) {
 
         body += '\n\n'
 
         //包含转发的微博
-        let retweetMd = '><br>' + _buildMarkdownFromStatusWithoutRetweet(status.retweeted_status) + '<br><br>'
+        let retweetMd = '><br>' + _buildMarkdownFromStatusWithoutRetweet(status.retweeted_status, picMode, dictPicUrlToTxid) + '<br><br>'
         retweetMd = retweetMd.replace(/\n/g, '\n>')
         body += retweetMd
     }
 
     body += '\n\n'
 
-    body += `<sub><sub>使用 [微博存档助手](https://github.com/fairwood/BsvWeiboUploader) 一键上链</sub></sub>`
+    body += `<sub><sub>使用 [微博存证助手](https://github.com/fairwood/BsvWeiboUploader) 一键上链</sub></sub>`
 
     mdData.body = body
 

@@ -71,10 +71,12 @@ function SimpleWallet(privateKeyString, feePerByte = 0.5) { // 极简钱包
      * mediaType: 'image/png';
      * encoding: 'UTF-8';
      */
-    this.archiveBProtocol = async function (dataBuffer, mediaType, encoding, filename) {
+    this.archiveBProtocol = async function (dataBuffer, mediaType, encoding, filename, overrideFeeRate = null) {
 
         let newTx = new bsv.Transaction()
-        newTx.feePerKb(this.feeRate * 1000)
+        let feePerKb = (overrideFeeRate || this.feeRate) * 1000
+
+        newTx.feePerKb(feePerKb)
         let inputs = []
         this.utxos.forEach(utxo => {
             inputs.push(utxo)
