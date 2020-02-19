@@ -28,3 +28,8 @@ console.log(`钱包地址 【 ${address} 】`)
 let qrcodeUrl = `https://cli.im/api/qrcode/code?text=${address}`
 
 openUrl(qrcodeUrl)
+
+simpleWallet.fetchUTXOs().then(async function () {
+    balanceBefore = simpleWallet.getBalance()
+    console.log(`余额 ${balanceBefore} sat`)
+})

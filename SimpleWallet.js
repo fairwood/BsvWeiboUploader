@@ -13,7 +13,7 @@ function SimpleWallet(privateKeyString, feePerByte = 0.5) { // 极简钱包
     if (feePerByte) this.feeRate = feePerByte
 
     this.utxos = null
-    
+
     /**
      * Must call at running. Can call anytime to refresh UTXOs.
      */
@@ -102,23 +102,25 @@ function SimpleWallet(privateKeyString, feePerByte = 0.5) { // 极简钱包
         try {
             res = await matter.sendRawTx(signedTx.toBuffer().toString('hex'))
             txid = res.txid
-            console.log('Archive successful. txid:', txid)
-            console.log(`Check file on Bico https://bico.media/${txid}`)
-            console.log(`Check tx https://whatsonchain.com/tx/${txid}`)
+            console.log('存档成功。 txid:', txid)
+            console.log(`在Bico.Media上查看 https://bico.media/${txid}`)
+            console.log(`查看tx信息 https://whatsonchain.com/tx/${txid}`)
 
             //Substitute UTXOs
             this.utxos = []
             let lastOutput = signedTx.outputs[1]
-            let jsonUtxo = {
-                "txid": txid,
-                "vout": 1,
-                "amount": lastOutput.satoshis / 1e8,
-                "satoshis": lastOutput.satoshis,
-                "value": lastOutput.satoshis,
-                "script": lastOutput.script.toHex(),
-                "outputIndex": 1
+            if (lastOutput) { // 有可能用完
+                let jsonUtxo = {
+                    "txid": txid,
+                    "vout": 1,
+                    "amount": lastOutput.satoshis / 1e8,
+                    "satoshis": lastOutput.satoshis,
+                    "value": lastOutput.satoshis,
+                    "script": lastOutput.script.toHex(),
+                    "outputIndex": 1
+                }
+                this.utxos.push(new bsv.Transaction.UnspentOutput(jsonUtxo))
             }
-            this.utxos.push(new bsv.Transaction.UnspentOutput(jsonUtxo))//FIXME:
 
         } catch (error) {
             console.log('ERROR:', error);

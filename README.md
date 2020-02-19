@@ -14,13 +14,19 @@
 
 [纯文字喊单微博](https://bico.media/4d2680717cb9c7cd9f32a269548d9147babe98c741e7ce5050c5c3815c9bc07c)
 
-# 第一次使用需创建或导入私钥
+# 下载和安装
+
+需要node.js环境。
+
+下载本工程，然后在工程目录运行命令行 ```npm install``` 以安装所有依赖库。
+
+# 第一次使用前需创建或导入私钥
 
 将命令行定位到该工程目录。
 
 运行
 
-```$ node newWallet.js```
+```node newWallet.js```
 
 在工程目录会生成secret.json文件，你可以备份里面的使用，也可以替换成自己的私钥。
 
@@ -28,19 +34,19 @@
 
 ### 查看余额和充值
 
-```$ node deposit.js```
+```node deposit.js```
 
 确保该私钥对应的地址有几千sat以上的余额（如果要传图片则需要更多余额）。
 
 ### 提现
 
-```$ node withdraw.js <接收地址>```
+```node withdraw.js <接收地址>```
 
 会一次性提现全部余额，清空钱包。
 
 ### 更换私钥
 
-```$ node newWallet.js```
+```node newWallet.js```
 
 旧钱包的余额会自动转移到新钱包。
 
@@ -71,7 +77,7 @@ const URL = "https://weibo.com/2803301701/Iuw1wpJWh..."
 即在命令行先访问到本工程文件夹，然后运行命令：
 
 ```
-$ node main.js
+node main.js
 ```
 
 ### 3. 几秒钟之内会上链成功，并输出txid。
