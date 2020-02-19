@@ -12,6 +12,8 @@
 
 [多图微博示例](https://bico.media/a50c6f9f48eb598da3496175385d1c41f38e633f157b9f20fb74ed22154f2a00)
 
+![](https://github.com/fairwood/BsvWeiboUploader/blob/master/docs/picweibo_demo.png)
+
 [带转发的微博](https://bico.media/268c5dd2639cbb7c273938c662a2dda793ae4ee81fa6d9271b6e49ac1710589c)
 
 [纯文字喊单微博](https://bico.media/4d2680717cb9c7cd9f32a269548d9147babe98c741e7ce5050c5c3815c9bc07c)
@@ -64,7 +66,7 @@ E:\git\BsvWeiboUploader> node .\main.js
 
 ### 2. 在网页浏览器复制微博链接。注意：必须是单博文页面，可用如下方式获取
 
-![](./docs/right_click_get_link.png)
+![](https://github.com/fairwood/BsvWeiboUploader/blob/master/docs/right_click_get_link.png)
 
 ### 3. 在命令行粘贴微博链接，回车
 
