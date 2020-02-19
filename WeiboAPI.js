@@ -137,7 +137,7 @@ exports.BuildMarkdownFromWeiboData = function (status, PIC_MODE, dictPicUrlToTxi
 
     body += '\n\n'
 
-    body += `<sub><sub>使用 [微博存证助手](https://github.com/fairwood/BsvWeiboUploader) 一键上链</sub></sub>`
+    body += `<sub><sub>使用 [微博存档助手](https://github.com/fairwood/BsvWeiboUploader) 一键上链</sub></sub>`
 
     mdData.body = body
 
