@@ -78,22 +78,31 @@ async function loop() {
 
             let dictPicUrlToTxid
 
-            if (jsonStatus.pics && picMode != 0) {
+            if (picMode != 0) {
                 dictPicUrlToTxid = {}
-                for (let i = 0; i < jsonStatus.pics.length; i++) {
-                    const picData = jsonStatus.pics[i];
-                    let picUrl
-                    if (picData.large && picMode == 2) {
-                        picUrl = picData.large.url
-                    } else {
-                        picUrl = picData.url
+                async function processPics(picDatas) {
+                    for (let i = 0; i < picDatas.length; i++) {
+                        const picData = picDatas[i];
+                        let picUrl
+                        if (picData.large && picMode == 2) {
+                            picUrl = picData.large.url
+                        } else {
+                            picUrl = picData.url
+                        }
+                        let buffer = await DownloadImage.downloadImageToBuffer(picUrl)
+                        let mediaType = DownloadImage.getImageMediaType(buffer)
+                        let fileHashInHex = bsv.crypto.Hash.sha256(buffer).toString('hex')
+                        let picTxid = await simpleWallet.archiveBProtocol(buffer, mediaType, 'binary', fileHashInHex, overrideFeeRate)
+                        dictPicUrlToTxid[picUrl] = picTxid
                     }
-                    let buffer = await DownloadImage.downloadImageToBuffer(picUrl)
-                    let mediaType = DownloadImage.getImageMediaType(buffer)
-                    let fileHashInHex = bsv.crypto.Hash.sha256(buffer).toString('hex')
-                    let picTxid = await simpleWallet.archiveBProtocol(buffer, mediaType, 'binary', fileHashInHex, overrideFeeRate)
-                    dictPicUrlToTxid[picUrl] = picTxid
                 }
+                if (jsonStatus.pics) {
+                    await processPics(jsonStatus.pics)
+                }
+                if (jsonStatus.retweeted_status && jsonStatus.retweeted_status.pics) {
+                    await processPics(jsonStatus.retweeted_status.pics)
+                }
+
             }
 
             let mdData = WeiboAPI.BuildMarkdownFromWeiboData(jsonStatus, picMode, dictPicUrlToTxid)
