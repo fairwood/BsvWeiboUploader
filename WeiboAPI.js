@@ -83,12 +83,13 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status, picMode, dictPicU
 
     let date = new Date(status.created_at)
     let timestr = date.toLocaleString('ch-CN', { hour12: false, timeZoneName: 'short' })
+    let text = status.longText ? status.longText.longTextContent : status.text
 
     md += `<sub>[${timestr}](https://weibo.com/${userid}/${status.bid}) 来自 ${status.source}</sub>\n\n`
 
         + '***\n\n'
 
-        + status.text;
+        + text;
 
     if (status.pics) {
 
