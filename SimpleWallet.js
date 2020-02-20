@@ -102,7 +102,7 @@ function SimpleWallet(privateKeyString, feePerByte = 0.5) { // 极简钱包
         let txid = null
 
         try {
-            res = await matter.sendRawTx(signedTx.toBuffer().toString('hex'))
+            let res = await matter.sendRawTx(signedTx.toBuffer().toString('hex'))
             txid = res.txid
             console.log('存档成功。 txid:', txid)
             console.log(`在Bico.Media上查看 https://bico.media/${txid}`)
@@ -128,7 +128,11 @@ function SimpleWallet(privateKeyString, feePerByte = 0.5) { // 极简钱包
             console.log('ERROR:', error);
         }
 
-        return txid
+        let result = {
+            txid: txid,
+            fee: signedTx.getFee()
+        }
+        return result
     }
 };
 module.exports = SimpleWallet;

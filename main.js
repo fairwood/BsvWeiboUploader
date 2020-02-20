@@ -4,6 +4,7 @@ var bsv = require('bsv')
 var SimpleWallet = require('./SimpleWallet')
 var DownloadImage = require('./DownloadImage')
 var CLIReadSync = require('./CLIReadSync')
+var ArchiveRecord = require('./ArchiveRecord')
 
 const FEE_RATE = 0.5 // sat/byte
 
@@ -28,6 +29,8 @@ let balanceBefore
 let uploadMdBodyBuffer
 let uploadMdFilename //without extension
 
+let archiveRecords = []
+
 function getCtrlKeyName() {
     switch (process.platform) {
         case "darwin":
@@ -37,6 +40,12 @@ function getCtrlKeyName() {
         default:
             return 'Ctrl'
     }
+}
+
+try {
+    ArchiveRecord.checkAndCreateCSV()
+} catch (error) {
+    console.log('ERROR:', error);    
 }
 
 async function loop() {
@@ -75,6 +84,7 @@ async function loop() {
 
             let json = JSON.parse(res)
             let jsonStatus = json.data
+            let statusTitle = jsonStatus.status_title
 
             let dictPicUrlToTxid
 
@@ -92,7 +102,9 @@ async function loop() {
                         let buffer = await DownloadImage.downloadImageToBuffer(picUrl)
                         let mediaType = DownloadImage.getImageMediaType(buffer)
                         let fileHashInHex = bsv.crypto.Hash.sha256(buffer).toString('hex')
-                        let picTxid = await simpleWallet.archiveBProtocol(buffer, mediaType, 'binary', fileHashInHex, overrideFeeRate)
+                        let picRes = await simpleWallet.archiveBProtocol(buffer, mediaType, 'binary', fileHashInHex, overrideFeeRate)
+                        let picTxid = picRes.txid
+                        archiveRecords.push(new ArchiveRecord.ArchiveRecord(picTxid, 'Image', picRes.fee, `http://bico.media/${picTxid}`, picUrl, statusTitle))
                         dictPicUrlToTxid[picUrl] = picTxid
                     }
                 }
@@ -106,18 +118,20 @@ async function loop() {
             }
 
             let mdData = WeiboAPI.BuildMarkdownFromWeiboData(jsonStatus, picMode, dictPicUrlToTxid)
-
             fs.writeFile('./temp_markdown.md', mdData.filename + '.md\n---\n\n' + mdData.body, () => { })
 
             uploadMdFilename = mdData.filename
-
             uploadMdBodyBuffer = Buffer.from(mdData.body)
 
-            await simpleWallet.archiveBProtocol(uploadMdBodyBuffer, 'text/markdown', 'UTF-8', uploadMdFilename, overrideFeeRate)
+            let mdRes = await simpleWallet.archiveBProtocol(uploadMdBodyBuffer, 'text/markdown', 'UTF-8', uploadMdFilename, overrideFeeRate)
+            let mdTxid = mdRes.txid
+            archiveRecords.push(new ArchiveRecord.ArchiveRecord(mdTxid, 'Weibo', mdRes.fee, `http://bico.media/${mdTxid}`, URL, statusTitle))
 
             let balanceNow = simpleWallet.getBalance()
 
-            console.log(`完成，地址${simpleWallet.address.toString()}   花费 ${balanceBefore - balanceNow} sat   余额 ${balanceNow} sat`)
+            console.log(`完成，地址${simpleWallet.address.toString()}   花费 ${balanceBefore - balanceNow} sat   余额 ${balanceNow} sat  已录入record.csv`)
+
+            ArchiveRecord.saveRecordsToCSV(archiveRecords)
 
         } catch (error) {
             console.log('ERROR:', error);
