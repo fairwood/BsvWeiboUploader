@@ -4,6 +4,9 @@ const URL_PREFIX = "https://m.weibo.cn/statuses"
 
 exports.statuses = {}
 exports.statuses.show = function (rawUrl, callback, errorCallback) {
+    // rawUrl 形如 https://weibo.com/2279895404/Iv37kpfoz?…… 
+    // 或 https://m.weibo.cn/status/4473699338190456?……
+    // 或 https://m.weibo.cn/1618819632/4473699338190456?……
     // API 形如 https://m.weibo.cn/statuses/show?id=IusJTusYl
     let index_w = rawUrl.search('weibo')
     if (index_w < 0) {
@@ -14,7 +17,6 @@ exports.statuses.show = function (rawUrl, callback, errorCallback) {
         let indexOfQuestionMark = rawUrl.indexOf('?', indexOfWbid)
         if (indexOfQuestionMark < 0) indexOfQuestionMark = rawUrl.length
         let wbid = rawUrl.substring(indexOfWbid, indexOfQuestionMark)
-        console.log(wbid);
         let path = URL_PREFIX + '/show?id=' + wbid
         let data = ''
         const req = https.get(path, (res) => {

@@ -71,10 +71,10 @@ async function loop() {
             }
             res = await WeiboAPI.statuses.showAsync(URL)
 
+            fs.writeFile('./temp_weibo.json', res, () => { })
+
             let json = JSON.parse(res)
             let jsonStatus = json.data
-
-            fs.writeFile('./temp_weibo.json', JSON.stringify(json), () => { })
 
             let dictPicUrlToTxid
 
