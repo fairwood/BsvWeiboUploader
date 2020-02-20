@@ -20,6 +20,7 @@
 
 [纯文字喊单微博](https://bico.media/4d2680717cb9c7cd9f32a269548d9147babe98c741e7ce5050c5c3815c9bc07c)
 
+[转发的长微博，未存档图片](https://bico.media/cb3f593ddb507fac786b3a43a98f9929a5b7e9314717c8d246494c23e8db7058)
 
 
 ## 下载和安装
