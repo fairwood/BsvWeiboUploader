@@ -31,11 +31,11 @@ let uploadMdFilename //without extension
 function getCtrlKeyName() {
     switch (process.platform) {
         case "darwin":
-            return 'Ctrl'
+            return 'CMD'
         case "win32":
             return 'Ctrl'
         default:
-            return 'CMD'
+            return 'Ctrl'
     }
 }
 
