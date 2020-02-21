@@ -8,10 +8,6 @@ var ArchiveRecord = require('./ArchiveRecord')
 
 const FEE_RATE = 0.5 // sat/byte
 
-//↓↓↓↓↓↓↓↓↓↓↓
-//const URL = "https://weibo.com/2279895404/IkN1GC9Q4" //修改这个URL为你要存档的微博URL
-//↑↑↑↑↑↑↑↑↑↑↑
-
 const path = './secret.json'
 
 var secret
