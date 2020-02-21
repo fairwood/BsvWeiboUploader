@@ -13,7 +13,7 @@ if (fs.existsSync(path)) {
         fs.writeFileSync(path, text)
     }
 } else {
-    require('../newWallet')
+    require('../newWallet')(null, false)
 }
 
 async function loop() {
