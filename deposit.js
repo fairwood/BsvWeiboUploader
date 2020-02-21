@@ -1,4 +1,4 @@
-var secret = require('./secret')
+var fs = require('fs')
 var SimpleWallet = require('./SimpleWallet')
 
 // 可以使用exec 来执行系统的默认命令；child_process为内置模块 
@@ -19,17 +19,28 @@ function openUrl(url) {
     }
 }
 
-let simpleWallet = new SimpleWallet(secret.PrivateKey)
+module.exports = async function showWalletInfo(getBalance, openQrcode = false) {
 
-let address = simpleWallet.address.toString()
+    const path = './secret.json'
+    let secret = JSON.parse(fs.readFileSync(path).toString())
 
-console.log(`钱包地址 【 ${address} 】`)
+    let simpleWallet = new SimpleWallet(secret.PrivateKey)
 
-let qrcodeUrl = `https://cli.im/api/qrcode/code?text=${address}`
+    let address = simpleWallet.address.toString()
 
-openUrl(qrcodeUrl)
+    console.log(`请妥善管理私钥【 ${secret.PrivateKey} 】`);
+    console.log(`钱包地址 【 ${address} 】`)
+    console.log(`费率 ${secret.FeeRate} Sat/Byte`)
 
-simpleWallet.fetchUTXOs().then(async function () {
-    balanceBefore = simpleWallet.getBalance()
-    console.log(`余额 ${balanceBefore} sat`)
-})
+    if (openQrcode) {
+        let qrcodeUrl = `https://cli.im/api/qrcode/code?text=${address}`
+        openUrl(qrcodeUrl)
+    }
+
+    if (getBalance) {
+        await simpleWallet.fetchUTXOs().then(async function () {
+            balanceBefore = simpleWallet.getBalance()
+            console.log(`余额 ${balanceBefore} sat`)
+        })
+    }
+}

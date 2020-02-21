@@ -6,17 +6,19 @@
     "dependencies": {
         "axios": "^0.19.2",
         "bsv": "^1.3.0",
+        "commander": "^4.1.1",
+        "inquirer": "^7.0.4",
         "mattercloudjs": "^1.0.6"
     },
     "bin": {
-        "archivesv": "./bin/index.sj"
+        "archivesv": "./bin/archivesv.js"
     },
     "homepage": "https://github.com/fairwood/BsvWeiboUploader",
     "repository": {
         "type": "git",
         "url": "git://github.com/fairwood/BsvWeiboUploader.git"
     },
-    "main": "main.js",
+    "main": "archive-weibo.js",
     "author": {
         "name": "Stephen Zhou"
     },
