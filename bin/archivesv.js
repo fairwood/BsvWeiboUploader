@@ -23,13 +23,13 @@ async function loop() {
             name: "cmd",
             message: "您需要做什么？",
             choices: [
-                { name: '1 开始存证...', value: 1, short: '开始存证' },
+                { name: '1 开始存证', value: 1, short: '开始存证' },
                 //new inquirer.Separator(),
                 { name: '2 查看私钥、地址、费率、余额', value: 2 },
-                { name: '3 充值', value: 3 },
+                { name: '3 转入资金', value: 3 },
                 { name: '4 导入私钥（可选择将旧私钥的钱自动转移到新私钥）', value: 4 },
                 { name: '5 使用新的随机私钥（可选择将旧私钥的钱自动转移到新私钥）', value: 5 },
-                { name: '6 提现全部余额', value: 6 },
+                { name: '6 转出全部余额', value: 6 },
                 { name: `7 设置上链费率（默认 0.5 Sat/Byte）`, value: 7 },
             ],
             default: 0
@@ -41,17 +41,16 @@ async function loop() {
                         await inquirer.prompt([{
                             type: "input",
                             name: "url",
-                            message: "输入微博链接（输入0返回菜单）",
-                            default: 0
+                            message: "输入微博链接，下一步可选择是否上链图片（如需返回上级菜单，可直接回车）",
                         }]).then(async answer => {
-                            if (answer.url == 0) {
+                            if (answer.url.length <= 1) {
                                 condition = false
                             } else {
                                 let url = answer.url
                                 await inquirer.prompt([{
                                     type: "number",
                                     name: "picMode",
-                                    message: "选择是否上链图片 0-仅引用 1-上链标准图 2-上链原图",
+                                    message: "选择是否上链图片 0-仅引用 1-上链标准图(默认) 2-上链原图",
                                     default: 1
                                 }]).then(async answer => {
                                     condition = await archiveWeibo(url, answer.picMode)
