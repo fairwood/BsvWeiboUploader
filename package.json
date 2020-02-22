@@ -1,6 +1,6 @@
 {
     "name": "archivesv",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "description": "Archive weibo in Metanet, BitcoinSV",
     "devDependencies": {},
     "dependencies": {
