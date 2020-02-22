@@ -1,4 +1,4 @@
-# BSV 微博存证助手 CLI 0.2
+# BSV 微博存证助手 CLI 0.3
  
 ## 项目背景
 
@@ -35,9 +35,7 @@
 
 ## 使用
 
-打开命令行，先 `cd` 到一个可以放置私钥文件的位置（记录事务的文件record.csv也会放置于此）
-
-运行 ```archivesv``` ！
+在命令行运行 ```archivesv``` ！
 
 ### 转入资金或导入私钥
 
@@ -61,7 +59,21 @@
     - 1 ：存档微博标准图（默认）
     - 2 ：存档微博原图
 
+### 事务记录和私钥的保存位置
+
+WIN: C:/Users/(user)/AppData/Roaming/archivesv/
+
+OSX: /Users/(user)/archivesv/
+
+Linux: /home/(user)/archivesv/
+
 ## Change Log
+
+### v0.3.0 (2020-02-22 23:00 GMT+8)
+
+- 在用户数据文件夹下储存私钥和事务记录文件
+
+- 修复转出资金时命令行顺序不对的bug
 
 ### v0.2.4 (2020-02-22 12:00 GMT+8)
 

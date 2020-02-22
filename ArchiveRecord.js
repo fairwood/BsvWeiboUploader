@@ -1,6 +1,7 @@
 var fs = require('fs')
+var fileMgr = require('./file-mgr')
 
-const PATH = './record.csv'
+const PATH = fileMgr.RECORD_PATH
 
 function ArchiveRecord(txid, type, fee, bicoLink, rawLink, abstract) { //这是个构造器
     this.txid = txid

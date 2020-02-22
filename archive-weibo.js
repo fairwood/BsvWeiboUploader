@@ -4,6 +4,9 @@ var bsv = require('bsv')
 var SimpleWallet = require('./SimpleWallet')
 var DownloadImage = require('./DownloadImage')
 var ArchiveRecord = require('./ArchiveRecord')
+var fileMgr = require('./file-mgr')
+
+const path = fileMgr.SECRET_PATH
 
 /**
  * @returns true-再次询问输入url;  false-返回上级菜单
@@ -12,7 +15,6 @@ module.exports = async function archiveWeibo(URL, picMode, overrideFeeRate) {
 
     const FEE_RATE = 0.5 // sat/byte
 
-    const path = './secret.json'
     var secret
     if (fs.existsSync(path)) {
         secret = JSON.parse(fs.readFileSync(path).toString())
@@ -103,10 +105,10 @@ module.exports = async function archiveWeibo(URL, picMode, overrideFeeRate) {
         if (mdRes.ok) {
             archiveRecords.push(new ArchiveRecord.ArchiveRecord(mdTxid, 'Weibo', mdRes.fee, `http://bico.media/${mdTxid}`, URL, statusTitle))
         }
-        
+
         let balanceNow = simpleWallet.getBalance()
 
-        console.log(`完成，地址${simpleWallet.address.toString()}   花费 ${balanceBefore - balanceNow} sat   余额 ${balanceNow} sat  已录入record.csv`)
+        console.log(`完成，地址${simpleWallet.address.toString()}   花费 ${balanceBefore - balanceNow} sat   余额 ${balanceNow} sat  已录入${fileMgr.RECORD_PATH}`)
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         ArchiveRecord.saveRecordsToCSV(archiveRecords)

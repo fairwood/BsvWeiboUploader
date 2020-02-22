@@ -3,8 +3,10 @@
 var archiveWeibo = require('../archive-weibo')
 var inquirer = require('inquirer')
 var fs = require('fs')
+var fileMgr = require('../file-mgr')
 
-const path = './secret.json'
+const path = fileMgr.SECRET_PATH
+
 if (fs.existsSync(path)) {
     let secret = JSON.parse(fs.readFileSync(path).toString())
     if (!secret.FeeRate) {
@@ -18,6 +20,9 @@ if (fs.existsSync(path)) {
 
 async function loop() {
     while (true) {
+
+        let secret = JSON.parse(fs.readFileSync(path).toString())
+
         await inquirer.prompt([{
             type: "list",
             name: "cmd",
@@ -25,12 +30,12 @@ async function loop() {
             choices: [
                 { name: '1 开始存证', value: 1, short: '开始存证' },
                 //new inquirer.Separator(),
-                { name: '2 查看私钥、地址、费率、余额', value: 2 },
+                { name: '2 查看私钥、地址、余额', value: 2 },
                 { name: '3 转入资金', value: 3 },
                 { name: '4 导入私钥（可选择将旧私钥的钱自动转移到新私钥）', value: 4 },
                 { name: '5 使用新的随机私钥（可选择将旧私钥的钱自动转移到新私钥）', value: 5 },
                 { name: '6 转出全部余额', value: 6 },
-                { name: `7 设置上链费率（默认 0.5 Sat/Byte）`, value: 7 },
+                { name: `7 设置上链费率（当前 ${secret.FeeRate} Sat/Byte）`, value: 7 },
             ],
             default: 0
         }]).then(async answer => {
@@ -99,9 +104,10 @@ async function loop() {
                         type: "input",
                         name: "receiverAddress",
                         message: "输入收款地址",
-                        default: true
                     }]).then(async answer => {
-                        await require('../withdraw')(answer.receiverAddress)
+                        if (answer.receiverAddress.length > 5) {
+                            await require('../withdraw')(answer.receiverAddress)
+                        }
                     })
                     break
                 }

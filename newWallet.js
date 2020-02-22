@@ -1,6 +1,9 @@
 var fs = require('fs')
 var bsv = require('bsv')
 var SimpleWallet = require('./SimpleWallet')
+var fileMgr = require('./file-mgr')
+
+const path = fileMgr.SECRET_PATH
 
 module.exports = async function createNewWallet(newPrivateKeyStr, transferOldMoney = true) {
 
@@ -16,8 +19,6 @@ module.exports = async function createNewWallet(newPrivateKeyStr, transferOldMon
     }
     let newWallet = new SimpleWallet(newPriKeyJson.PrivateKey)
     let newAddress = newWallet.address
-
-    const path = './secret.json'
 
     //获取旧钱包
     if (fs.existsSync(path)) {
@@ -50,8 +51,11 @@ module.exports = async function createNewWallet(newPrivateKeyStr, transferOldMon
     }
 
     let text = JSON.stringify(newPriKeyJson)
+    if (!fs.existsSync(fileMgr.DIR)){
+        fs.mkdirSync(fileMgr.DIR)
+    }
     fs.writeFileSync(path, text)
-    console.log(`已创建新钱包，私钥在secret.json`)
+    console.log(`已创建新钱包，私钥在${path}`)
     console.log(`新钱包地址 【 ${newAddress} 】`)
 
 }
