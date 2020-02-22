@@ -9,7 +9,7 @@ var ArchiveRecord = require('./ArchiveRecord')
  * @returns true-再次询问输入url;  false-返回上级菜单
  */
 module.exports = async function archiveWeibo(URL, picMode, overrideFeeRate) {
-    
+
     const FEE_RATE = 0.5 // sat/byte
 
     const path = './secret.json'
@@ -76,7 +76,9 @@ module.exports = async function archiveWeibo(URL, picMode, overrideFeeRate) {
                     let fileHashInHex = bsv.crypto.Hash.sha256(buffer).toString('hex')
                     let picRes = await simpleWallet.archiveBProtocol(buffer, mediaType, 'binary', fileHashInHex, overrideFeeRate)
                     let picTxid = picRes.txid
-                    archiveRecords.push(new ArchiveRecord.ArchiveRecord(picTxid, 'Image', picRes.fee, `http://bico.media/${picTxid}`, picUrl, statusTitle))
+                    if (picRes.ok) {
+                        archiveRecords.push(new ArchiveRecord.ArchiveRecord(picTxid, 'Image', picRes.fee, `http://bico.media/${picTxid}`, picUrl, statusTitle))
+                    }
                     console.log('─────────────────────────────────────────────────────────────────');
                     dictPicUrlToTxid[picUrl] = picTxid
                 }
@@ -98,8 +100,10 @@ module.exports = async function archiveWeibo(URL, picMode, overrideFeeRate) {
 
         let mdRes = await simpleWallet.archiveBProtocol(uploadMdBodyBuffer, 'text/markdown', 'UTF-8', uploadMdFilename, overrideFeeRate)
         let mdTxid = mdRes.txid
-        archiveRecords.push(new ArchiveRecord.ArchiveRecord(mdTxid, 'Weibo', mdRes.fee, `http://bico.media/${mdTxid}`, URL, statusTitle))
-
+        if (mdRes.ok) {
+            archiveRecords.push(new ArchiveRecord.ArchiveRecord(mdTxid, 'Weibo', mdRes.fee, `http://bico.media/${mdTxid}`, URL, statusTitle))
+        }
+        
         let balanceNow = simpleWallet.getBalance()
 
         console.log(`完成，地址${simpleWallet.address.toString()}   花费 ${balanceBefore - balanceNow} sat   余额 ${balanceNow} sat  已录入record.csv`)

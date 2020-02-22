@@ -109,7 +109,7 @@ let _buildMarkdownFromStatusWithoutRetweet = function (status, picMode, dictPicU
                 } else {
                     picTxid = dictPicUrlToTxid[picData.url]
                 }
-                md += `![](b://${picTxid}) `
+                md += `[![${picTxid}](b://${picTxid})](https://whatsonchain.com/tx/${picTxid}) `
             }
         });
     }

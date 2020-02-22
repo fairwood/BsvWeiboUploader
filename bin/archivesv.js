@@ -4,7 +4,7 @@ var archiveWeibo = require('../archive-weibo')
 var inquirer = require('inquirer')
 var fs = require('fs')
 
-const path = '../secret.json'
+const path = './secret.json'
 if (fs.existsSync(path)) {
     let secret = JSON.parse(fs.readFileSync(path).toString())
     if (!secret.FeeRate) {
